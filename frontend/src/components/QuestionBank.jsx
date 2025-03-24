@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import QuestionsPage from "./QuestionsPage"; // Import QuestionsPage component
+import { useNavigate, useLocation } from "react-router-dom";
+import QuestionsPage from "./QuestionsPage";
 
 const categories = [
   "Human Anatomy",
@@ -38,12 +38,23 @@ const QuestionBank = () => {
   const [selectedCategory, setSelectedCategory] = useState(categories[0]);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Handle screen resize for responsive
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+
+      if (!mobile && location.pathname.startsWith("/questions/")) {
+        // Redirect back to /question-bank when switching to large screen
+        navigate("/question-bank", { replace: true });
+      }
+    };
+
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [location.pathname, navigate]);
 
   const handleCategoryClick = useCallback(
     (category) => {
@@ -60,15 +71,13 @@ const QuestionBank = () => {
         VT Question Bank
       </header>
 
-      {/* Main Content */}
+      {/* Main Layout */}
       <div className="flex flex-col md:flex-row h-[calc(100vh-4rem)]">
-        {/* Sidebar (Categories) */}
+        {/* Category Sidebar */}
         <aside className="w-full md:w-1/4 bg-white shadow-md flex flex-col h-full">
-          <h3 className="text-lg font-semibold text-center p-4 border-b bg-gray-200 flex-none">
+          <h3 className="text-lg font-semibold text-center p-4 border-b bg-gray-200">
             Categories
           </h3>
-
-          {/* Scrollable Category List */}
           <div className="flex-1 overflow-y-auto">
             <ul className="p-2">
               {categories.map((category, index) => (
@@ -85,8 +94,6 @@ const QuestionBank = () => {
               ))}
             </ul>
           </div>
-
-          {/* Back to Home Button */}
           <button
             className="m-4 p-2 bg-gray-300 rounded-md text-black hover:bg-gray-400 transition-all duration-200"
             onClick={() => navigate("/")}>
@@ -94,10 +101,16 @@ const QuestionBank = () => {
           </button>
         </aside>
 
-        {/* Questions Panel - Only Show on Larger Screens */}
+        {/* Questions Display */}
         {!isMobile && (
-          <main className="flex-1 p-6">
-            <QuestionsPage category={selectedCategory} />
+          <main className="flex-1 p-6 overflow-y-auto">
+            {selectedCategory ? (
+              <QuestionsPage category={selectedCategory} />
+            ) : (
+              <p className="text-center text-gray-500 mt-4">
+                Select a category to view questions.
+              </p>
+            )}
           </main>
         )}
       </div>

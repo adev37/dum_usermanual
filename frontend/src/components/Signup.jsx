@@ -9,6 +9,7 @@ const Signup = () => {
     name: "",
     email: "",
     password: "",
+    role: "student", // Default role is student
   });
   const navigate = useNavigate();
 
@@ -21,9 +22,9 @@ const Signup = () => {
   // Handle user signup
   const handleSignup = async (e) => {
     e.preventDefault();
-    const { name, email, password } = signupInfo;
-    if (!name || !email || !password) {
-      return handleError("Name, email, and password are required");
+    const { name, email, password, role } = signupInfo;
+    if (!name || !email || !password || !role) {
+      return handleError("Name, email, password, and role are required");
     }
     try {
       const response = await fetch("http://localhost:8080/auth/signup", {
@@ -89,6 +90,20 @@ const Signup = () => {
               />
             </div>
           ))}
+          <div className="mb-4">
+            <label htmlFor="role" className="block text-gray-600 mb-1">
+              Role
+            </label>
+            <select
+              id="role"
+              name="role"
+              value={signupInfo.role}
+              onChange={handleChange}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="student">Student</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
           <button
             type="submit"
             className="w-full py-2 mt-2 text-white bg-green-500 rounded-full shadow-md hover:bg-green-600 transition-all">

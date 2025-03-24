@@ -1,4 +1,4 @@
-// Importing the Joi library, which is used for validating the request data (like name, email, password)
+// Importing the Joi library, which is used for validating the request data (like name, email, password, role)
 const Joi = require("joi");
 
 // Middleware for validating the signup data
@@ -13,6 +13,9 @@ const signupValidation = (req, res, next) => {
 
     // Password must be a string between 4 and 100 characters and is required
     password: Joi.string().min(4).max(100).required(),
+
+    // Role must be either 'admin' or 'student' and is required
+    role: Joi.string().valid("admin", "student").required(),
   });
 
   // Validating the request body against the defined schema
@@ -20,7 +23,9 @@ const signupValidation = (req, res, next) => {
 
   // If there is an error in the validation, send a 400 Bad Request response with the error details
   if (error) {
-    return res.status(400).json({ message: "Bad request", error });
+    return res
+      .status(400)
+      .json({ message: error.details[0].message, success: false });
   }
 
   // If validation passes, move to the next middleware or route handler
@@ -43,7 +48,9 @@ const loginValidation = (req, res, next) => {
 
   // If there is an error in the validation, send a 400 Bad Request response with the error details
   if (error) {
-    return res.status(400).json({ message: "Bad request", error });
+    return res
+      .status(400)
+      .json({ message: error.details[0].message, success: false });
   }
 
   // If validation passes, move to the next middleware or route handler

@@ -1,54 +1,85 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // ✅ Required for proper styling
+
 import Home from "./pages/Home";
 import QuestionBank from "./components/QuestionBank";
 import QuestionsPage from "./components/QuestionsPage";
 import Login from "./pages/Login";
 import Signup from "./components/Signup";
 import PrivateRoute from "./PrivateRoute";
-import NotFound from "./components/NotFound.jsx";
-import AddQuestion from "./components/AddQuestion.jsx";
+import NotFound from "./components/NotFound";
+import AddQuestion from "./components/AddQuestion";
+import EditProfile from "./components/EditProfile";
+import UserDetails from "./components/UserDetails";
 
-// Custom Hook for Authentication
-// Encapsulates authentication logic for better separation of concerns
+// ✅ Custom Auth Hook
 const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Check authentication status on component mount
   useEffect(() => {
-    setIsAuthenticated(!!localStorage.getItem("token"));
+    const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+    setIsAuthenticated(!!token);
+    setUserRole(role);
+    setLoading(false); // Important to prevent flashing 404
   }, []);
 
-  // Logout function to clear token and update state
   const handleLogout = useCallback(() => {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
     setIsAuthenticated(false);
+    setUserRole(null);
   }, []);
 
-  return { isAuthenticated, setIsAuthenticated, handleLogout };
+  return {
+    isAuthenticated,
+    setIsAuthenticated,
+    handleLogout,
+    userRole,
+    loading,
+  };
 };
 
 const App = () => {
-  // Using the custom authentication hook
-  const { isAuthenticated, setIsAuthenticated, handleLogout } = useAuth();
+  const {
+    isAuthenticated,
+    setIsAuthenticated,
+    handleLogout,
+    userRole,
+    loading,
+  } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <p className="text-blue-500 text-lg animate-pulse">Loading app...</p>
+      </div>
+    );
+  }
 
   return (
     <Router>
       <div className="min-h-screen flex flex-col">
         <Routes>
-          {/* Public routes */}
           <Route
             path="/login"
             element={<Login setIsAuthenticated={setIsAuthenticated} />}
           />
           <Route path="/signup" element={<Signup />} />
 
-          {/* Protected routes, accessible only if authenticated */}
+          {/* Protected Routes */}
           <Route
             path="/"
             element={
               <PrivateRoute
-                element={<Home handleLogout={handleLogout} />}
+                element={
+                  <Home handleLogout={handleLogout} userRole={userRole} />
+                }
                 isAuthenticated={isAuthenticated}
               />
             }
@@ -57,7 +88,7 @@ const App = () => {
             path="/questions/:category"
             element={
               <PrivateRoute
-                element={<QuestionsPage />}
+                element={<QuestionsPage userRole={userRole} />}
                 isAuthenticated={isAuthenticated}
               />
             }
@@ -66,22 +97,46 @@ const App = () => {
             path="/question-bank"
             element={
               <PrivateRoute
-                element={<QuestionBank />}
+                element={<QuestionBank userRole={userRole} />}
                 isAuthenticated={isAuthenticated}
               />
             }
           />
           <Route
-            path="/add"
+            path="/editprofile"
             element={
               <PrivateRoute
-                element={<AddQuestion />}
+                element={<EditProfile />}
+                isAuthenticated={isAuthenticated}
+              />
+            }
+          />
+          <Route
+            path="/userDetails"
+            element={
+              <PrivateRoute
+                element={<UserDetails />}
                 isAuthenticated={isAuthenticated}
               />
             }
           />
 
-          {/* Catch-all route for 404 errors */}
+          {/* ✅ Admin-Only Route for Add */}
+          <Route
+            path="/add"
+            element={
+              userRole === "admin" ? (
+                <PrivateRoute
+                  element={<AddQuestion />}
+                  isAuthenticated={isAuthenticated}
+                />
+              ) : (
+                <NotFound />
+              )
+            }
+          />
+
+          {/* Fallback */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>

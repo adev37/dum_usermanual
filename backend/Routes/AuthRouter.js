@@ -1,24 +1,33 @@
-// Importing the signup and login functions from the AuthController file
-const { signup, login } = require("../Controllers/AuthController");
+const router = require("express").Router();
 
-// Importing the validation middleware for signup and login from the AuthValidation file
+// Controllers
+const {
+  signup,
+  login,
+  updateUser,
+  userDetail,
+} = require("../Controllers/AuthController");
+
+// Middlewares
+const verifyToken = require("../Middlewares/verifyToken");
 const {
   signupValidation,
   loginValidation,
 } = require("../Middlewares/AuthValidation");
 
-// Creating a new Express router instance to handle authentication routes
-const router = require("express").Router();
+// Models
+const UserModel = require("../Models/User");
 
-// Defining a POST route for the signup endpoint
-// First, the signupValidation middleware checks if the request data is valid
-// If validation passes, the signup function is called to handle user registration
+// Signup route with validation
 router.post("/signup", signupValidation, signup);
 
-// Defining a POST route for the login endpoint
-// First, the loginValidation middleware checks if the request data is valid
-// If validation passes, the login function is called to handle user login
+// Login route with validation
 router.post("/login", loginValidation, login);
 
-// Exporting the router so that it can be used in other parts of the application
+// Update profile route (protected)
+router.put("/updateUser", verifyToken, updateUser);
+
+// ✅ GET user detail route (protected)
+router.get("/userDetail", verifyToken, userDetail);
+
 module.exports = router;
