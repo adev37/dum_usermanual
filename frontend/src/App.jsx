@@ -11,7 +11,6 @@ import Signup from "./components/Signup";
 import PrivateRoute from "./PrivateRoute";
 import NotFound from "./components/NotFound";
 import AddQuestion from "./components/AddQuestion";
-import EditProfile from "./components/EditProfile";
 import UserDetails from "./components/UserDetails";
 
 // ✅ Custom Auth Hook
@@ -93,6 +92,8 @@ const App = () => {
               />
             }
           />
+          <Route path="/questions/:main" element={<QuestionsPage />} />
+          <Route path="/questions/:main/:sub" element={<QuestionsPage />} />
           <Route
             path="/question-bank"
             element={
@@ -102,15 +103,7 @@ const App = () => {
               />
             }
           />
-          <Route
-            path="/editprofile"
-            element={
-              <PrivateRoute
-                element={<EditProfile />}
-                isAuthenticated={isAuthenticated}
-              />
-            }
-          />
+
           <Route
             path="/userDetails"
             element={

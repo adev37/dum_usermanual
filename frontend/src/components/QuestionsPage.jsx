@@ -1,46 +1,51 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+// ✅ Final Working QuestionsPage.jsx (Mobile shows expandable categories, desktop shows images and intro only)
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import otTableImage1 from "../assets/Bez-nazwy.png";
+import otTableImage2 from "../assets/bez-ta.png";
+import otTableImage3 from "../assets/hyperion.png";
 
-const QuestionsPage = ({ category: propCategory }) => {
-  const { category: paramCategory } = useParams();
+const staticQuestions = {
+  "1. Setup & Installation": {
+    "Unpacking the Operating Table": [
+      {
+        q: "What is the first step upon receiving the operating table?",
+        a: "Inspect the packaging for visible damage during transit.",
+      },
+      {
+        q: "Why is it important to inspect the packaging before unpacking?",
+        a: "To ensure no damage occurred during shipping and document any issues for claims.",
+      },
+    ],
+    "Inspecting the OT Table": [],
+    "Preparing for Installation": [],
+    "Connecting to Power": [],
+    "Testing the Table After Setup": [],
+    "Accessory Setup": [],
+  },
+  "2. Operating the Table": {
+    "Switching On/Off": [],
+    "Emergency Stop": [],
+  },
+  "3. Table Positioning & Adjustments": {},
+  "4. Accessory Usage & Handling": {},
+  "5. Safety, Cleaning & Disinfection": {},
+  "6. Maintenance & Repairs": {},
+};
+
+const QuestionsPage = ({ category: propCategory, subcategory: propSub }) => {
+  const { main, sub } = useParams();
   const navigate = useNavigate();
-  const category = propCategory ?? paramCategory;
 
-  const [questions, setQuestions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const decodedMain = decodeURIComponent(main || "");
+  const decodedSub = decodeURIComponent(sub || "");
+
+  const category = propCategory ?? decodedMain;
+  const subcategory = propSub ?? decodedSub;
+  const data = staticQuestions?.[category]?.[subcategory] || [];
+
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [editingQuestion, setEditingQuestion] = useState(null);
-  const [editForm, setEditForm] = useState({
-    category: "",
-    question: "",
-    options: ["", "", "", ""],
-    answer: "",
-  });
-
-  const userRole = localStorage.getItem("role");
-  const token = localStorage.getItem("token");
-
-  useEffect(() => {
-    setLoading(true);
-    fetch("http://localhost:8080/api/questions")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.questions) {
-          const filtered = data.questions.filter(
-            (q) => q.category.toLowerCase() === category.toLowerCase()
-          );
-          setQuestions(filtered);
-        } else {
-          setQuestions([]);
-        }
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Failed to load questions. Please try again.");
-        setLoading(false);
-      });
-  }, [category]);
+  const [expandedCategory, setExpandedCategory] = useState(null);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -48,179 +53,135 @@ const QuestionsPage = ({ category: propCategory }) => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleEditClick = (question) => {
-    setEditingQuestion(question._id);
-    setEditForm({
-      category: question.category,
-      question: question.question,
-      options: question.options,
-      answer: question.answer,
-    });
+  const toggleCategory = (cat) => {
+    setExpandedCategory((prev) => (prev === cat ? null : cat));
   };
 
-  const handleChange = (e) => {
-    setEditForm({ ...editForm, [e.target.name]: e.target.value });
-  };
-
-  const handleOptionChange = (index, value) => {
-    const updated = [...editForm.options];
-    updated[index] = value;
-    setEditForm({ ...editForm, options: updated });
-  };
-
-  const handleSaveChanges = async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/questions/${editingQuestion}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify(editForm),
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setQuestions((prev) =>
-          prev.map((q) =>
-            q._id === editingQuestion ? { ...q, ...editForm } : q
-          )
-        );
-        setEditingQuestion(null);
-      } else {
-        alert("Failed to update question.");
-      }
-    } catch (error) {
-      alert("Error updating question. Please try again.");
-    }
-  };
-
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this question?"))
-      return;
-
-    try {
-      const response = await fetch(
-        `http://localhost:8080/api/questions/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      const data = await response.json();
-
-      if (data.success) {
-        setQuestions((prev) => prev.filter((q) => q._id !== id));
-      } else {
-        alert("Failed to delete question.");
-      }
-    } catch (error) {
-      alert("Error deleting question. Please try again.");
-    }
+  const handleSubClick = (mainCat, subCat) => {
+    navigate(
+      `/question-bank/${encodeURIComponent(mainCat)}/${encodeURIComponent(
+        subCat
+      )}`
+    );
   };
 
   return (
     <div className="flex flex-col bg-gray-100 min-h-screen">
-      <header className="bg-blue-600 text-white text-center py-4 text-2xl font-bold shadow-md">
-        {category} Questions
-      </header>
+      {isMobile && (
+        <header className="bg-blue-600 text-white text-center py-4 text-2xl font-bold shadow-md">
+          DUM (Digital User Manual)
+        </header>
+      )}
 
-      <div className="flex-1 p-6 max-h-[78vh] overflow-y-auto bg-white shadow-md rounded-lg">
-        <h2 className="text-xl font-bold mb-4">{category} Questions</h2>
-
-        {loading ? (
-          <p className="text-center text-gray-500">Loading questions...</p>
-        ) : error ? (
-          <p className="text-center text-red-500">{error}</p>
-        ) : questions.length > 0 ? (
-          <div className="space-y-4">
-            {questions.map((q, index) => (
-              <div key={q._id} className="p-4 bg-gray-100 shadow-md rounded-md">
-                {editingQuestion === q._id ? (
-                  <div>
-                    <input
-                      type="text"
-                      name="question"
-                      value={editForm.question}
-                      onChange={handleChange}
-                      className="w-full p-2 border mb-2"
-                    />
-                    {editForm.options.map((option, i) => (
-                      <input
-                        key={i}
-                        type="text"
-                        value={option}
-                        onChange={(e) => handleOptionChange(i, e.target.value)}
-                        className="w-full p-2 border mb-2"
-                      />
-                    ))}
-                    <input
-                      type="text"
-                      name="answer"
-                      value={editForm.answer}
-                      onChange={handleChange}
-                      className="w-full p-2 border mb-2"
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={handleSaveChanges}
-                        className="px-4 py-2 bg-green-500 text-white rounded-md">
-                        Save
-                      </button>
-                      <button
-                        onClick={() => setEditingQuestion(null)}
-                        className="px-4 py-2 bg-gray-400 text-white rounded-md">
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <p className="font-semibold text-gray-800">
-                      {index + 1}. {q.question}
-                    </p>
-                    <ul className="mt-2 space-y-1">
-                      {q.options.map((option, i) => (
-                        <li key={i} className="text-gray-600">
-                          ➡ {option}
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="mt-2 font-bold text-green-600">
-                      Answer: {q.answer}
-                    </p>
-                    {userRole === "admin" && (
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() => handleEditClick(q)}
-                          className="px-4 py-2 bg-blue-500 text-white rounded-md">
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleDelete(q._id)}
-                          className="px-4 py-2 bg-red-500 text-white rounded-md">
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-500">No questions available.</p>
+      <div className="flex-1 p-4 overflow-y-auto">
+        {isMobile && category && subcategory && (
+          <>
+            <h2 className="text-xl font-bold mb-2 text-center">
+              {category} Questions
+            </h2>
+            <h3 className="text-lg font-semibold mb-4 text-center">
+              - {subcategory} Questions
+            </h3>
+          </>
         )}
 
-        {/* Mobile Back Button at the bottom */}
-        {isMobile && (
+        {subcategory && data.length > 0 && (
+          <ul className="space-y-4 mt-4">
+            {data.map((item, index) => (
+              <li
+                key={index}
+                className="bg-white p-4 rounded shadow text-sm md:text-base">
+                <p className="font-medium">
+                  {index + 1}. Q: {item.q}
+                </p>
+                <p className="text-green-700 mt-1">A: {item.a}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {subcategory && data.length === 0 && (
+          <p className="text-center text-gray-500 mt-4">
+            No questions available for this subcategory.
+          </p>
+        )}
+
+        {/* Expandable Category Tree - only for mobile */}
+        {!subcategory && isMobile && (
+          <div className="mt-8">
+            <h2 className="text-lg font-semibold mb-4 text-center">
+              Categories
+            </h2>
+            <div className="bg-white rounded shadow p-4 max-w-md mx-auto">
+              {Object.entries(staticQuestions).map(
+                ([mainCat, subCats], index) => (
+                  <div key={index} className="mb-2">
+                    <div
+                      onClick={() => toggleCategory(mainCat)}
+                      className="font-bold cursor-pointer hover:text-blue-600">
+                      {index + 1}. {mainCat}
+                    </div>
+                    {expandedCategory === mainCat && (
+                      <div className="pl-4">
+                        {Object.keys(subCats).length > 0 ? (
+                          Object.keys(subCats).map((sub, idx) => (
+                            <div
+                              key={idx}
+                              onClick={() => handleSubClick(mainCat, sub)}
+                              className="cursor-pointer hover:underline text-sm mt-1">
+                              - {sub}
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-gray-500 text-sm pl-2 mt-1">
+                            No subtopics yet
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )
+              )}
+              <div className="mt-6 flex justify-center">
+                <button
+                  onClick={() => navigate("/")}
+                  className="bg-blue-100 text-blue-700 px-4 py-2 rounded hover:bg-blue-200">
+                  ⬅ Go Back to Home
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Desktop landing view with images and intro */}
+        {!subcategory && !isMobile && (
+          <div className="flex flex-col items-center gap-6 mt-8">
+            <div className="flex flex-col md:flex-row justify-center items-center gap-6">
+              <img
+                src={otTableImage1}
+                alt="OT Table 1"
+                className="w-48 h-auto max-h-48 object-contain rounded shadow"
+              />
+              <img
+                src={otTableImage3}
+                alt="OT Table 3"
+                className="w-48 h-auto max-h-48 object-contain rounded shadow"
+              />
+            </div>
+            <img
+              src={otTableImage2}
+              alt="OT Table 2"
+              className="w-48 h-auto max-h-48 object-contain rounded shadow"
+            />
+            <p className="text-center text-gray-600 max-w-2xl mt-4">
+              Explore key aspects of Operating Table usage. Click a topic from
+              the menu to begin learning installation, operation, positioning,
+              safety, and maintenance procedures.
+            </p>
+          </div>
+        )}
+
+        {isMobile && subcategory && (
           <div className="mt-6 flex justify-center">
             <button
               onClick={() => navigate("/question-bank")}
