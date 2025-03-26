@@ -16,7 +16,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutClick, userRole }) => {
       label: "Question Bank",
       path: "/question-bank",
     },
-    { name: "profile", icon: "👤", label: "Profile" },
+    { name: "profile", icon: "👤", label: "Profile", path: "/userDetails" },
   ];
 
   if (userRole === "admin") {

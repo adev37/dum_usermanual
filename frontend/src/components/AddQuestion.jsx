@@ -1,39 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { handleSuccess, handleError } from "../utils";
 
 const AddQuestion = () => {
-  const [questions, setQuestions] = useState([createEmptyQuestion()]);
   const navigate = useNavigate();
 
-  function createEmptyQuestion() {
-    return {
-      category: "",
-      question: "",
-      options: ["", "", "", ""],
-      answer: "",
-    };
-  }
+  // Set category/subcategory once
+  const [category, setCategory] = useState("");
+  const [subcategory, setSubcategory] = useState("");
+
+  // Dynamic list of questions only (no cat/subcat inside)
+  const [questions, setQuestions] = useState([{ question: "", answer: "" }]);
 
   const handleChange = (index, field, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[index][field] = value;
-    setQuestions(updatedQuestions);
+    const updated = [...questions];
+    updated[index][field] = value;
+    setQuestions(updated);
   };
 
-  const handleOptionChange = (qIndex, optIndex, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[qIndex].options[optIndex] = value;
-    setQuestions(updatedQuestions);
-  };
-
-  const handleAnswerChange = (qIndex, value) => {
-    const updatedQuestions = [...questions];
-    updatedQuestions[qIndex].answer = value;
-    setQuestions(updatedQuestions);
-  };
-
-  const addNewQuestion = () => {
-    setQuestions([...questions, createEmptyQuestion()]);
+  const addQuestion = () => {
+    setQuestions([...questions, { question: "", answer: "" }]);
   };
 
   const removeQuestion = (index) => {
@@ -41,128 +27,116 @@ const AddQuestion = () => {
     setQuestions(updated);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-
+  const handleSubmit = async () => {
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/questions/bulk-add",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ questions }),
-        }
-      );
-      const result = await response.json();
-      if (result.success) {
-        alert("Questions added successfully!");
-        setQuestions([createEmptyQuestion()]);
+      if (!category || !subcategory) {
+        return handleError("Category and Subcategory are required");
+      }
+
+      const payload = questions.map((q) => ({
+        ...q,
+        category,
+        subcategory,
+      }));
+
+      const res = await fetch("http://localhost:8080/api/questions/bulk-add", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ questions: payload }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        handleSuccess(data.message);
+        setQuestions([{ question: "", answer: "" }]);
+        setCategory("");
+        setSubcategory("");
       } else {
-        alert("Error: " + result.message);
+        handleError(data.message);
       }
     } catch (err) {
-      alert("Server error: " + err.message);
+      handleError("Failed to save questions");
     }
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="max-w-4xl mx-auto p-6 bg-white shadow rounded-md">
-      <h2 className="text-2xl font-bold mb-4">Add MCQ Questions</h2>
+    <div className="max-w-4xl mx-auto mt-10 bg-white p-6 rounded-lg shadow">
+      <h2 className="text-2xl font-bold text-center mb-6 text-blue-700">
+        Add MCQ Questions
+      </h2>
 
+      {/* Category and Subcategory filled only once */}
+      <input
+        type="text"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        placeholder="Category"
+        className="w-full mb-3 px-3 py-2 border rounded"
+        required
+      />
+      <input
+        type="text"
+        value={subcategory}
+        onChange={(e) => setSubcategory(e.target.value)}
+        placeholder="Subcategory"
+        className="w-full mb-6 px-3 py-2 border rounded"
+        required
+      />
+
+      {/* Multiple Questions */}
       {questions.map((q, index) => (
-        <div key={index} className="mb-8 border-b pb-4 relative">
-          <h4 className="text-lg font-semibold mb-2">
-            MCQ Question {index + 1}
-          </h4>
-          <button
-            type="button"
-            onClick={() => removeQuestion(index)}
-            className="absolute right-0 top-0 bg-red-500 text-white px-3 py-1 rounded-md text-sm">
-            Remove
-          </button>
+        <div key={index} className="mb-6 border-b pb-4">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="font-semibold">MCQ Question {index + 1}</h3>
+            {questions.length > 1 && (
+              <button
+                onClick={() => removeQuestion(index)}
+                className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">
+                Remove
+              </button>
+            )}
+          </div>
 
           <input
             type="text"
-            placeholder="Category"
-            value={q.category}
-            onChange={(e) => handleChange(index, "category", e.target.value)}
-            className="w-full p-2 border rounded-md mb-2"
-            required
-          />
-
-          <input
-            type="text"
-            placeholder="Question"
             value={q.question}
             onChange={(e) => handleChange(index, "question", e.target.value)}
-            className="w-full p-2 border rounded-md mb-2"
+            placeholder="Question"
+            className="w-full mb-3 px-3 py-2 border rounded"
             required
           />
-
-          {q.options.map((opt, optIndex) => (
-            <input
-              key={optIndex}
-              type="text"
-              placeholder={`Option ${optIndex + 1}`}
-              value={opt}
-              onChange={(e) =>
-                handleOptionChange(index, optIndex, e.target.value)
-              }
-              className="w-full p-2 border rounded-md mb-2"
-              required
-            />
-          ))}
-
-          <select
+          <input
+            type="text"
             value={q.answer}
-            onChange={(e) => handleAnswerChange(index, e.target.value)}
-            className="w-full p-2 border rounded-md"
-            required>
-            <option value="" disabled>
-              Select Correct Answer
-            </option>
-            {q.options
-              .filter((opt) => opt.trim() !== "")
-              .map((opt, idx) => (
-                <option key={idx} value={opt}>
-                  {opt}
-                </option>
-              ))}
-          </select>
+            onChange={(e) => handleChange(index, "answer", e.target.value)}
+            placeholder="Answer"
+            className="w-full mb-3 px-3 py-2 border rounded"
+            required
+          />
         </div>
       ))}
 
-      {/* ✅ BUTTONS */}
-      <div className="flex flex-wrap gap-4 justify-center sm:justify-start">
+      <div className="flex space-x-3">
         <button
-          type="button"
-          onClick={addNewQuestion}
-          className="bg-purple-500 text-white px-4 py-2 rounded-md">
+          onClick={addQuestion}
+          className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600">
           Add Question
         </button>
-
         <button
-          type="submit"
-          className="bg-green-500 text-white px-4 py-2 rounded-md">
+          onClick={handleSubmit}
+          className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
           Save
         </button>
-
-        {/* ✅ Back to Home Button */}
         <button
-          type="button"
           onClick={() => navigate("/")}
-          className="bg-gray-300 text-black px-4 py-2 rounded-md hover:bg-gray-400 inline-flex items-center space-x-2 text-sm">
-          <span className="text-blue-600">⬅</span>
-          <span>Home</span>
+          className="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
+          ⬅ Home
         </button>
       </div>
-    </form>
+    </div>
   );
 };
 

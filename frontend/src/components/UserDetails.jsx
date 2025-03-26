@@ -1,5 +1,7 @@
+// src/components/UserDetails.js
 import React, { useEffect, useState } from "react";
 import { FaUser, FaEnvelope, FaBriefcase } from "react-icons/fa";
+import Sidebar from "./Sidebar"; // ✅ Import Sidebar
 
 const UserDetails = () => {
   const [user, setUser] = useState({
@@ -58,32 +60,46 @@ const UserDetails = () => {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-200 via-blue-100 to-gray-200 p-4">
-      <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-md">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-          User Profile
-        </h2>
+    <div className="flex flex-col md:flex-row min-h-screen bg-gradient-to-br from-blue-200 via-blue-100 to-gray-200">
+      {/* ✅ Sidebar visible on both mobile & desktop */}
+      <Sidebar
+        activeTab="profile"
+        setActiveTab={() => {}}
+        onLogoutClick={() => {
+          localStorage.removeItem("token");
+          localStorage.removeItem("role");
+          window.location.href = "/login";
+        }}
+        userRole={user.role}
+      />
 
-        <div className="space-y-4">
-          {[
-            { label: "Full Name", value: user.name, icon: <FaUser /> },
-            { label: "Email", value: user.email, icon: <FaEnvelope /> },
-            { label: "Profession", value: user.role, icon: <FaBriefcase /> },
-          ].map((field, index) => (
-            <div
-              key={index}
-              className="flex items-center border rounded-lg p-3 shadow-sm bg-gray-100">
-              <span className="text-blue-500 text-lg mx-2">{field.icon}</span>
-              <input
-                type="text"
-                value={field.value}
-                readOnly
-                className="w-full bg-transparent outline-none text-gray-700"
-              />
-            </div>
-          ))}
+      <main className="flex-1 p-4 flex items-center justify-center">
+        <div className="w-full max-w-lg bg-white p-6 rounded-lg shadow-md">
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
+            User Profile
+          </h2>
+
+          <div className="space-y-4">
+            {[
+              { label: "Full Name", value: user.name, icon: <FaUser /> },
+              { label: "Email", value: user.email, icon: <FaEnvelope /> },
+              { label: "Profession", value: user.role, icon: <FaBriefcase /> },
+            ].map((field, index) => (
+              <div
+                key={index}
+                className="flex items-center border rounded-lg p-3 shadow-sm bg-gray-100">
+                <span className="text-blue-500 text-lg mx-2">{field.icon}</span>
+                <input
+                  type="text"
+                  value={field.value}
+                  readOnly
+                  className="w-full bg-transparent outline-none text-gray-700"
+                />
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

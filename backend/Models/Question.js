@@ -1,28 +1,29 @@
 const mongoose = require("mongoose");
 
-const Schema = mongoose.Schema;
-
-const questionSchema = new Schema(
+const QuestionSchema = new mongoose.Schema(
   {
     category: {
       type: String,
       required: true,
     },
+    subcategory: {
+      type: String,
+      required: true, // <== ✅ THIS WAS MISSING
+    },
     question: {
       type: String,
-      required: true,
-    },
-    options: {
-      type: [String], // Array of strings
       required: true,
     },
     answer: {
       type: String,
       required: true,
     },
+    options: {
+      type: [String], // for future MCQs (optional)
+      default: [],
+    },
   },
   { timestamps: true }
 );
 
-const QuestionModel = mongoose.model("questions", questionSchema);
-module.exports = QuestionModel;
+module.exports = mongoose.model("Question", QuestionSchema);

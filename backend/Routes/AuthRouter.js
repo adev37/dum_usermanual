@@ -15,19 +15,10 @@ const {
   loginValidation,
 } = require("../Middlewares/AuthValidation");
 
-// Models
-const UserModel = require("../Models/User");
-
-// Signup route with validation
+// Routes
 router.post("/signup", signupValidation, signup);
-
-// Login route with validation
 router.post("/login", loginValidation, login);
-
-// Update profile route (protected)
 router.put("/updateUser", verifyToken, updateUser);
-
-// ✅ GET user detail route (protected)
 router.get("/userDetail", verifyToken, userDetail);
 
 module.exports = router;

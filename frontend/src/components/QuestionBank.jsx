@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import QuestionsPage from "./QuestionsPage";
 
 const structuredCategories = [
@@ -121,45 +121,39 @@ const structuredCategories = [
 ];
 
 const QuestionBank = () => {
-  const [selectedMain, setSelectedMain] = useState(null);
-  const [selectedSub, setSelectedSub] = useState("");
-  const [expandedMain, setExpandedMain] = useState(
-    structuredCategories[0].main
+  const isInitialMobile = window.innerWidth < 768;
+  const [isMobile, setIsMobile] = useState(isInitialMobile);
+  const [selectedMain, setSelectedMain] = useState(
+    isInitialMobile ? null : structuredCategories[0].main
   );
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [expandedMain, setExpandedMain] = useState(
+    isInitialMobile ? null : structuredCategories[0].main
+  );
+  const [selectedSub, setSelectedSub] = useState("");
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (!mobile && location.pathname.startsWith("/questions/")) {
-        navigate("/question-bank", { replace: true });
-      }
     };
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, [location.pathname, navigate]);
+  }, []);
 
-  const handleMainClick = useCallback(
-    (main) => {
-      setExpandedMain(expandedMain === main ? null : main);
-      setSelectedMain(main);
-      setSelectedSub("");
-      if (isMobile) navigate(`/questions/${main}`);
-    },
-    [expandedMain, isMobile, navigate]
-  );
+  const handleMainClick = (main) => {
+    setExpandedMain(expandedMain === main ? null : main);
+    setSelectedMain(main);
+    setSelectedSub("");
+  };
 
-  const handleSubClick = useCallback(
-    (main, sub) => {
-      setSelectedMain(main);
-      setSelectedSub(sub);
-      if (isMobile) navigate(`/questions/${main}/${sub}`);
-    },
-    [isMobile, navigate]
-  );
+  const handleSubClick = (main, sub) => {
+    setSelectedMain(main);
+    setSelectedSub((prev) => (prev === sub ? "" : sub)); // toggle
+  };
+
+  // Helper to strip numbering
+  const normalizeCategory = (cat) => cat.replace(/^\d+\.\s*/, "").trim();
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
@@ -185,22 +179,30 @@ const QuestionBank = () => {
                     onClick={() => handleMainClick(main)}>
                     {main}
                   </li>
-                  {expandedMain === main && (
-                    <>
-                      {subs.map((sub, index) => (
+                  {expandedMain === main &&
+                    subs.map((sub, index) => (
+                      <React.Fragment key={index}>
                         <li
-                          key={index}
                           className={`cursor-pointer pl-6 py-2 text-gray-700 hover:bg-blue-100 ${
                             selectedSub === sub
-                              ? "text-blue-600 font-semibold"
+                              ? "text-blue-600 font-semibold bg-blue-100"
                               : ""
                           }`}
                           onClick={() => handleSubClick(main, sub)}>
                           - {sub}
                         </li>
-                      ))}
-                    </>
-                  )}
+                        {isMobile &&
+                          selectedMain === main &&
+                          selectedSub === sub && (
+                            <div className="pl-8 pr-2 py-2">
+                              <QuestionsPage
+                                category={normalizeCategory(main)}
+                                subcategory={sub}
+                              />
+                            </div>
+                          )}
+                      </React.Fragment>
+                    ))}
                 </React.Fragment>
               ))}
             </ul>
@@ -232,7 +234,7 @@ const QuestionBank = () => {
                   </h2>
                 )}
                 <QuestionsPage
-                  category={selectedMain}
+                  category={normalizeCategory(selectedMain)}
                   subcategory={selectedSub}
                 />
               </>

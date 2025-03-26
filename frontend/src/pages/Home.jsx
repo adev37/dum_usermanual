@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import MainContent from "../components/MainContent";
-import UserDetails from "../components/UserDetails";
 import { useNavigate } from "react-router-dom";
 
 const Home = ({ handleLogout }) => {

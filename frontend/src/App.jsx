@@ -10,8 +10,8 @@ import Login from "./pages/Login";
 import Signup from "./components/Signup";
 import PrivateRoute from "./PrivateRoute";
 import NotFound from "./components/NotFound";
-import AddQuestion from "./components/AddQuestion";
 import UserDetails from "./components/UserDetails";
+import AddQuestion from "./components/AddQuestion";
 
 // ✅ Custom Auth Hook
 const useAuth = () => {
