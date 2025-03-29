@@ -71,7 +71,7 @@ const App = () => {
             path="/login"
             element={<Login setIsAuthenticated={setIsAuthenticated} />}
           />
-          <Route path="/signup" element={<Signup />} />
+          <Route path="/brcomponent/signup" element={<Signup />} />
 
           {/* Protected Routes */}
           <Route

@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import { handleError, handleSuccess } from "../utils";
-import otTableImage from "../assets/bez-ta.png"; // Make sure your OT image is saved as 'image.png'
+import otTableImage from "../assets/bez-ta.png"; // Update with your OT image path
 
 const Login = ({ setIsAuthenticated }) => {
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
@@ -52,10 +50,10 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-300 to-blue-600 p-4">
-      <div className="bg-white rounded-3xl shadow-xl overflow-hidden flex flex-col md:flex-row w-full max-w-4xl">
-        {/* Image Side */}
-        <div className="md:w-1/2 bg-blue-100 flex items-center justify-center p-6">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#e0f1fd] to-[#a4cfff] p-4">
+      <div className="bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row w-full max-w-4xl">
+        {/* Left Image */}
+        <div className="md:w-1/2 bg-[#ddecfc] flex items-center justify-center p-6">
           <img
             src={otTableImage}
             alt="OT Table"
@@ -63,52 +61,58 @@ const Login = ({ setIsAuthenticated }) => {
           />
         </div>
 
-        {/* Form Side */}
-        <div className="md:w-1/2 p-8">
-          <h2 className="text-3xl font-bold text-blue-700 text-center mb-6">
+        {/* Right Form */}
+        <div className="md:w-1/2 p-8 flex flex-col justify-center">
+          <h2 className="text-3xl font-bold text-center text-[#1f4db6] mb-6">
             Welcome Back
           </h2>
-          <form onSubmit={handleLogin}>
-            {[
-              {
-                label: "Email address",
-                type: "email",
-                name: "email",
-                placeholder: "Enter email",
-              },
-              {
-                label: "Password",
-                type: "password",
-                name: "password",
-                placeholder: "Enter password",
-              },
-            ].map(({ label, type, name, placeholder }) => (
-              <div className="mb-4" key={name}>
-                <label htmlFor={name} className="block text-gray-700 mb-1">
-                  {label}
-                </label>
-                <input
-                  type={type}
-                  id={name}
-                  name={name}
-                  placeholder={placeholder}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  onChange={handleChange}
-                  value={loginInfo[name]}
-                />
-              </div>
-            ))}
 
+          <form onSubmit={handleLogin}>
+            {/* Email Field */}
+            <div className="mb-4">
+              <label
+                htmlFor="email"
+                className="block text-sm text-gray-700 mb-1">
+                Email address
+              </label>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                placeholder="you@example.com"
+                value={loginInfo.email}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            {/* Password Field */}
+            <div className="mb-4">
+              <label
+                htmlFor="password"
+                className="block text-sm text-gray-700 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Enter password"
+                value={loginInfo.password}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            {/* Submit */}
             <button
               type="submit"
-              className="w-full py-2 mt-2 text-white bg-blue-500 rounded-full shadow-md hover:bg-blue-600 transition-all">
+              className="w-full py-2 mt-2 text-white bg-[#1f4db6] hover:bg-[#153e99] rounded-full font-semibold transition-all shadow-md">
               LOGIN
             </button>
           </form>
         </div>
       </div>
-
-      {/* <ToastContainer /> */}
     </div>
   );
 };
