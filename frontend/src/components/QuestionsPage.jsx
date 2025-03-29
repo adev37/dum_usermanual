@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import otTableImage1 from "../assets/Bez-nazwy.png";
-import otTableImage2 from "../assets/bez-ta.png";
-import otTableImage3 from "../assets/hyperion.png";
+import otTableImage2 from "../assets/ORTY.png";
+import otTableImage3 from "../assets/bez-ta.png";
 import { handleSuccess, handleError } from "../utils";
 
 const QuestionsPage = ({ category, subcategory, userRole }) => {
@@ -18,7 +18,9 @@ const QuestionsPage = ({ category, subcategory, userRole }) => {
   useEffect(() => {
     const fetchQuestions = async () => {
       try {
-        const res = await fetch("http://localhost:8080/api/questions");
+        const res = await fetch(
+          "https://dum-digital-user-manual.vercel.app/api/questions"
+        );
         const data = await res.json();
         if (data.success) {
           setQuestions(data.questions);
@@ -46,12 +48,15 @@ const QuestionsPage = ({ category, subcategory, userRole }) => {
 
   const handleDelete = async (id) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/questions/${id}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      const res = await fetch(
+        `https://dum-digital-user-manual.vercel.app/api/questions/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       const result = await res.json();
       if (result.success) {
         handleSuccess(result.message);
@@ -69,14 +74,17 @@ const QuestionsPage = ({ category, subcategory, userRole }) => {
     if (!updatedAnswer) return;
 
     try {
-      const res = await fetch(`http://localhost:8080/api/questions/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ answer: updatedAnswer }),
-      });
+      const res = await fetch(
+        `https://dum-digital-user-manual.vercel.app/api/questions/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({ answer: updatedAnswer }),
+        }
+      );
       const result = await res.json();
       if (result.success) {
         handleSuccess(result.message);

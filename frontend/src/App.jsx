@@ -12,6 +12,7 @@ import PrivateRoute from "./PrivateRoute";
 import NotFound from "./components/NotFound";
 import UserDetails from "./components/UserDetails";
 import AddQuestion from "./components/AddQuestion";
+import Toaster from "./components/Toaster";
 
 // ✅ Custom Auth Hook
 const useAuth = () => {
@@ -64,6 +65,7 @@ const App = () => {
   return (
     <Router>
       <div className="min-h-screen flex flex-col">
+        <Toaster />
         <Routes>
           <Route
             path="/login"
@@ -118,14 +120,12 @@ const App = () => {
           <Route
             path="/add"
             element={
-              userRole === "admin" ? (
-                <PrivateRoute
-                  element={<AddQuestion />}
-                  isAuthenticated={isAuthenticated}
-                />
-              ) : (
-                <NotFound />
-              )
+              <PrivateRoute
+                element={<AddQuestion />}
+                isAuthenticated={isAuthenticated}
+                userRole={userRole}
+                allowedRoles={["admin"]}
+              />
             }
           />
 

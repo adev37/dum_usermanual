@@ -2,7 +2,7 @@ import React from "react";
 import product1 from "../assets/widget.png"; // Replace with actual image paths
 import product2 from "../assets/Bez-nazwy.png";
 import product3 from "../assets/bez-ta.png";
-import product4 from "../assets/hyperion.png";
+import product4 from "../assets/ORTY.png";
 
 const products = [
   {

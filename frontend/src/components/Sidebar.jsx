@@ -13,7 +13,7 @@ const Sidebar = ({ activeTab, setActiveTab, onLogoutClick, userRole }) => {
     {
       name: "questionbank",
       icon: "📚",
-      label: "Question Bank",
+      label: "Procedure Steps",
       path: "/question-bank",
     },
     { name: "profile", icon: "👤", label: "Profile", path: "/userDetails" },

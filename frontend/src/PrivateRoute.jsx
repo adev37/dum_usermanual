@@ -1,14 +1,33 @@
+import React from "react";
 import { Navigate } from "react-router-dom";
 
-/**
- * PrivateRoute component to restrict access to authenticated users.
- * @param {object} props - Component props
- * @param {JSX.Element} props.element - The component to render if authenticated
- * @param {boolean} props.isAuthenticated - Authentication status
- * @returns {JSX.Element} - Returns the element if authenticated, otherwise redirects to login
- */
-const PrivateRoute = ({ element, isAuthenticated }) => {
-  return isAuthenticated ? element : <Navigate to="/login" replace />;
+const PrivateRoute = ({ element, isAuthenticated, userRole, allowedRoles }) => {
+  // Wait for role to load before showing anything
+  if (userRole === null) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <p className="text-blue-500 text-lg animate-pulse">Loading route...</p>
+      </div>
+    );
+  }
+
+  // Not logged in
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Check allowedRoles (e.g., admin)
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-white">
+        <p className="text-red-500 text-xl font-bold">
+          Unauthorized: Access Denied
+        </p>
+      </div>
+    );
+  }
+
+  return element;
 };
 
 export default PrivateRoute;

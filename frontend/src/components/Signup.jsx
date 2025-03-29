@@ -27,11 +27,14 @@ const Signup = () => {
       return handleError("Name, email, password, and role are required");
     }
     try {
-      const response = await fetch("http://localhost:8080/auth/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(signupInfo),
-      });
+      const response = await fetch(
+        "https://dum-digital-user-manual.vercel.app/auth/signup",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(signupInfo),
+        }
+      );
       const result = await response.json();
       const { success, message, error } = result;
 
