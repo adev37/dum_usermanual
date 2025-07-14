@@ -13,11 +13,18 @@ const ManualUploadPage = () => {
   });
 
   const [message, setMessage] = useState("");
+  const [fileNames, setFileNames] = useState({
+    pdf: "",
+    image: "",
+  });
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
     if (name === "pdf" || name === "image") {
-      setFormData({ ...formData, [name]: files[0] });
+      const file = files[0];
+      setFormData({ ...formData, [name]: file });
+      setFileNames({ ...fileNames, [name]: file ? file.name : "" });
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -25,8 +32,8 @@ const ManualUploadPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const { title, model, category, description, pdf, image } = formData;
+
     if (!title || !model || !category || !description || !pdf || !image) {
       return setMessage("❗ Please fill all fields and upload both files.");
     }
@@ -41,7 +48,9 @@ const ManualUploadPage = () => {
 
     try {
       const res = await axios.post("/manuals/upload", uploadData);
-      setMessage(`✅ Upload successful: ${res.data.title}`);
+      setMessage(`✅ Upload successful: ${res.data.manual?.title || title}`);
+
+      // Reset form and file name previews
       setFormData({
         title: "",
         model: "",
@@ -50,6 +59,14 @@ const ManualUploadPage = () => {
         pdf: null,
         image: null,
       });
+      setFileNames({
+        pdf: "",
+        image: "",
+      });
+
+      // Optionally reset file inputs manually
+      document.getElementById("pdfInput").value = "";
+      document.getElementById("imageInput").value = "";
     } catch (err) {
       console.error(err);
       setMessage("❌ Upload failed. Please try again.");
@@ -115,11 +132,15 @@ const ManualUploadPage = () => {
             <input
               type="file"
               name="image"
+              id="imageInput"
               accept="image/png, image/jpeg"
               onChange={handleChange}
               required
               className="mt-1"
             />
+            {fileNames.image && (
+              <p className="text-sm text-gray-600 mt-1">📷 {fileNames.image}</p>
+            )}
           </div>
 
           <div className="md:col-span-2">
@@ -143,11 +164,15 @@ const ManualUploadPage = () => {
             <input
               type="file"
               name="pdf"
+              id="pdfInput"
               accept="application/pdf"
               onChange={handleChange}
               required
               className="mt-1"
             />
+            {fileNames.pdf && (
+              <p className="text-sm text-gray-600 mt-1">📄 {fileNames.pdf}</p>
+            )}
           </div>
 
           <div className="md:col-span-2">

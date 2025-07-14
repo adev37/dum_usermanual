@@ -15,7 +15,7 @@ const Sidebar = () => {
   }, []);
 
   useEffect(() => {
-    setOpenSidebar(false); // close sidebar on route change
+    setOpenSidebar(false);
   }, [location.pathname]);
 
   const grouped = manuals.reduce((acc, manual) => {
@@ -31,7 +31,7 @@ const Sidebar = () => {
 
   return (
     <>
-      {/* Top Bar on Mobile */}
+      {/* Mobile Top Bar */}
       <div className="md:hidden flex items-center justify-between p-4 bg-white shadow fixed top-0 left-0 right-0 z-50">
         <span className="text-blue-700 font-bold text-lg">Manuals</span>
         <button
@@ -41,7 +41,7 @@ const Sidebar = () => {
         </button>
       </div>
 
-      {/* Sidebar Overlay */}
+      {/* Backdrop on Mobile */}
       {openSidebar && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
@@ -49,32 +49,33 @@ const Sidebar = () => {
         />
       )}
 
-      {/* Sidebar Drawer */}
+      {/* Sidebar */}
       <aside
         className={`fixed z-50 top-0 left-0 h-full w-64 bg-white shadow-md border-r transition-transform duration-300 ease-in-out transform ${
           openSidebar ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 md:static md:z-auto`}>
         <div className="flex flex-col h-full p-4 pt-6 md:pt-4">
-          {/* Sidebar Title */}
+          {/* Title */}
           <div className="text-xl font-bold flex items-center gap-2 mb-6 text-blue-700">
             <BookOpen className="w-5 h-5 text-blue-600" />
             Manuals
           </div>
 
-          {/* Navigation Links */}
+          {/* Navigation */}
           <nav className="flex-1 overflow-y-auto space-y-2 text-sm font-medium">
             <Link
               to="/"
               className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
                 location.pathname === "/dashboard"
-                  ? "bg-blue-100 text-blue-800 font-semibold"
-                  : "hover:bg-blue-50 text-gray-800"
+                  ? "bg-blue-600 text-white shadow"
+                  : "hover:bg-blue-100 text-gray-800"
               }`}
               onClick={() => setOpenSidebar(false)}>
               <Home className="w-4 h-4" />
               Dashboard
             </Link>
 
+            {/* Dynamic Dropdowns */}
             {Object.entries(grouped).map(([cat, items], idx) => (
               <SidebarDropdown
                 key={idx}
@@ -89,7 +90,7 @@ const Sidebar = () => {
             ))}
           </nav>
 
-          {/* Upload + Logout */}
+          {/* Bottom Links */}
           <div className="mt-6 border-t border-gray-200 pt-4 space-y-3 text-sm">
             <Link
               to="/upload"

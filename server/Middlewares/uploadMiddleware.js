@@ -2,12 +2,20 @@
 import multer from "multer";
 import path from "path";
 
+// Utility to sanitize strings for safe filenames
+const sanitize = (str) =>
+  str
+    .replace(/[\\/:"*?<>|]+/g, "") // Remove illegal characters
+    .replace(/\s+/g, "-") // Replace spaces with dashes
+    .toLowerCase(); // Optional: normalize to lowercase
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public/uploads/");
   },
   filename: (req, file, cb) => {
-    const sanitizedTitle = req.body.title?.replace(/\s+/g, "-") || "manual";
+    const title = req.body.title || "manual";
+    const sanitizedTitle = sanitize(title);
     const timestamp = Date.now();
     const ext = path.extname(file.originalname);
     cb(null, `${timestamp}-${sanitizedTitle}-${file.fieldname}${ext}`);

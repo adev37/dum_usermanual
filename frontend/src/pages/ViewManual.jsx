@@ -47,7 +47,6 @@ const ViewManual = () => {
       {/* ✅ PDF View Mode */}
       {showViewer ? (
         <>
-          {/* 🔝 Top Right Back Button (Tablet/Desktop only) */}
           <div className="hidden md:flex justify-end items-center px-6 pt-6">
             <button
               onClick={() => setShowViewer(false)}
@@ -56,7 +55,6 @@ const ViewManual = () => {
             </button>
           </div>
 
-          {/* 📄 PDF Viewer */}
           <div className="max-w-6xl mx-auto px-4">
             <ManualViewer
               filePath={manual.file}
@@ -65,7 +63,6 @@ const ViewManual = () => {
             />
           </div>
 
-          {/* 📱 Sticky Bottom Button — Mobile only */}
           <div className="fixed bottom-0 left-0 right-0 bg-white p-4 shadow-inner z-40 flex justify-center md:hidden">
             <button
               onClick={() => setShowViewer(false)}
@@ -76,13 +73,28 @@ const ViewManual = () => {
         </>
       ) : (
         // 📘 Manual Detail View
-        <div className="max-w-6xl mx-auto p-6 md:pt-2">
+        <div className="max-w-6xl mx-auto p-6 md:pt-2 relative mt-[55px] md:mt-0">
           {/* 🧾 Title & Model */}
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold text-blue-800">{manual.title}</h2>
-            <span className="text-sm text-gray-600 font-medium">
-              Model: {manual.model}
-            </span>
+          <div className="mb-4">
+            {/* Mobile & Tablet: stacked */}
+            <div className="block lg:hidden">
+              <h2 className="text-2xl font-bold text-blue-800">
+                {manual.title}
+              </h2>
+              <span className="text-sm text-gray-600 font-medium mt-1 block">
+                Model: {manual.model}
+              </span>
+            </div>
+
+            {/* Desktop only: inline */}
+            <div className="hidden lg:flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-blue-800">
+                {manual.title}
+              </h2>
+              <span className="text-sm text-gray-600 font-medium">
+                Model: {manual.model}
+              </span>
+            </div>
           </div>
 
           {/* 📷 Manual Image */}
@@ -100,38 +112,41 @@ const ViewManual = () => {
           </p>
 
           {/* 📂 Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-8">
-            <button
-              onClick={() => setShowViewer(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-              🔍 View PDF
-            </button>
+          <div className="flex justify-between items-center w-full mt-4">
+            <div>
+              <button
+                onClick={() => setShowViewer(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+                🔍 View PDF
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch(fullUrl);
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
 
-            <button
-              onClick={async () => {
-                try {
-                  const response = await fetch(fullUrl);
-                  const blob = await response.blob();
-                  const url = window.URL.createObjectURL(blob);
-
-                  const link = document.createElement("a");
-                  link.href = url;
-                  link.setAttribute(
-                    "download",
-                    `${manual.title || "manual"}.pdf`
-                  );
-                  document.body.appendChild(link);
-                  link.click();
-                  link.remove();
-                  window.URL.revokeObjectURL(url);
-                } catch (err) {
-                  console.error("Download failed", err);
-                  alert("❌ Failed to download file.");
-                }
-              }}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-              ⬇️ Download PDF
-            </button>
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.setAttribute(
+                      "download",
+                      `${manual.title || "manual"}.pdf`
+                    );
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    window.URL.revokeObjectURL(url);
+                  } catch (err) {
+                    console.error("Download failed", err);
+                    alert("❌ Failed to download file.");
+                  }
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                ⬇️ Download PDF
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,3 +1,4 @@
+// manualRoutes.js
 import express from "express";
 import {
   getAllManuals,
@@ -8,9 +9,13 @@ import { upload } from "../Middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
+// GET all manuals
 router.get("/", getAllManuals);
+
+// GET manual by ID
 router.get("/:id", getManualById);
-// manualRoutes.js
+
+// POST: Upload manual with PDF and image files
 router.post(
   "/upload",
   upload.fields([

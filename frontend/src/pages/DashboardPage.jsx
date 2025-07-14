@@ -16,11 +16,11 @@ const DashboardPage = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 pt-20 md:pt-6">
       <h1 className="text-3xl font-bold mb-4 text-blue-700 text-center">
-        Learn to Use Our Operating Tables with Ease
+        Digital Manuals for Every Physical Therapy and Rehab Product
       </h1>
       <p className="text-center text-gray-600 mb-8">
-        Step-by-step digital user manual (DUM) for each table to help you
-        operate safely and efficiently.
+        Access detailed, illustrated instructions for proper setup and usage of
+        all equipment.
       </p>
 
       {/* Grid: 1 col (mobile) → 2 cols (tablet ≥768px) → 3 cols (desktop ≥1280px) */}
@@ -38,9 +38,16 @@ const DashboardPage = () => {
             <h2 className="text-lg font-semibold text-center text-gray-800 mb-2">
               {manual.title}
             </h2>
-            <p className="text-center text-gray-600 text-sm whitespace-pre-wrap break-words">
+
+            <p className="text-start text-gray-600 text-sm line-clamp-2">
               {manual.description}
             </p>
+
+            <div className="mt-2 text-center">
+              <span className="inline-block text-blue-600 text-xs font-semibold">
+                View More →
+              </span>
+            </div>
           </Link>
         ))}
       </div>
