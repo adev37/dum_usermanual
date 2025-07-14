@@ -117,7 +117,7 @@ const ViewManual = () => {
               <button
                 onClick={() => setShowViewer(true)}
                 className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-                🔍 View PDF
+                🔍 View User Manual
               </button>
             </div>
             <div>
@@ -144,7 +144,7 @@ const ViewManual = () => {
                   }
                 }}
                 className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-                ⬇️ Download PDF
+                ⬇️ User Manual Download
               </button>
             </div>
           </div>
