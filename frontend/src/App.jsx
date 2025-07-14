@@ -1,140 +1,43 @@
-import React, { useState, useEffect, useCallback } from "react";
+// src/App.jsx
+import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; // ✅ Required for proper styling
 
-import Home from "./pages/Home";
-import QuestionBank from "./components/QuestionBank";
-import QuestionsPage from "./components/QuestionsPage";
+// Pages
+// import DeviceManualPage from "./pages/DeviceManualPage";
+import ManualUploadPage from "./pages/ManualUploadPage";
+import DashboardPage from "./pages/DashboardPage";
 import Login from "./pages/Login";
-import Signup from "./components/Signup";
-import PrivateRoute from "./PrivateRoute";
-import NotFound from "./components/NotFound";
-import UserDetails from "./components/UserDetails";
-import AddQuestion from "./components/AddQuestion";
-import Toaster from "./components/Toaster";
+import Signup from "./pages/Signup";
+import ViewManual from "./pages/ViewManual";
 
-// ✅ Custom Auth Hook
-const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userRole, setUserRole] = useState(null);
-  const [loading, setLoading] = useState(true);
+// Layout
+import Layout from "./components/layout/Layout";
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    const role = localStorage.getItem("role");
-
-    setIsAuthenticated(!!token);
-    setUserRole(role);
-    setLoading(false); // Important to prevent flashing 404
-  }, []);
-
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-    setIsAuthenticated(false);
-    setUserRole(null);
-  }, []);
-
-  return {
-    isAuthenticated,
-    setIsAuthenticated,
-    handleLogout,
-    userRole,
-    loading,
-  };
-};
-
-const App = () => {
-  const {
-    isAuthenticated,
-    setIsAuthenticated,
-    handleLogout,
-    userRole,
-    loading,
-  } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-white">
-        <p className="text-blue-500 text-lg animate-pulse">Loading app...</p>
-      </div>
-    );
-  }
+function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    !!localStorage.getItem("token")
+  );
 
   return (
     <Router>
-      <div className="min-h-screen flex flex-col">
-        <Toaster />
-        <Routes>
-          <Route
-            path="/login"
-            element={<Login setIsAuthenticated={setIsAuthenticated} />}
-          />
-          <Route path="/brcomponent/signup" element={<Signup />} />
+      <Routes>
+        {/* Public Routes */}
+        <Route
+          path="/login"
+          element={<Login setIsAuthenticated={setIsAuthenticated} />}
+        />
+        <Route path="/signup" element={<Signup />} />
 
-          {/* Protected Routes */}
-          <Route
-            path="/"
-            element={
-              <PrivateRoute
-                element={
-                  <Home handleLogout={handleLogout} userRole={userRole} />
-                }
-                isAuthenticated={isAuthenticated}
-              />
-            }
-          />
-          <Route
-            path="/questions/:category"
-            element={
-              <PrivateRoute
-                element={<QuestionsPage userRole={userRole} />}
-                isAuthenticated={isAuthenticated}
-              />
-            }
-          />
-          <Route path="/questions/:main" element={<QuestionsPage />} />
-          <Route path="/questions/:main/:sub" element={<QuestionsPage />} />
-          <Route
-            path="/question-bank"
-            element={
-              <PrivateRoute
-                element={<QuestionBank userRole={userRole} />}
-                isAuthenticated={isAuthenticated}
-              />
-            }
-          />
-
-          <Route
-            path="/userDetails"
-            element={
-              <PrivateRoute
-                element={<UserDetails />}
-                isAuthenticated={isAuthenticated}
-              />
-            }
-          />
-
-          {/* ✅ Admin-Only Route for Add */}
-          <Route
-            path="/add"
-            element={
-              <PrivateRoute
-                element={<AddQuestion />}
-                isAuthenticated={isAuthenticated}
-                userRole={userRole}
-                allowedRoles={["admin"]}
-              />
-            }
-          />
-
-          {/* Fallback */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+        {/* Protected Routes inside Layout */}
+        <Route element={<Layout />}>
+          <Route path="/" element={<DashboardPage />} />
+          {/* <Route path="/" element={<DeviceManualPage />} /> */}
+          <Route path="/upload" element={<ManualUploadPage />} />
+          <Route path="/manual/view/:id" element={<ViewManual />} />
+        </Route>
+      </Routes>
     </Router>
   );
-};
+}
 
 export default App;

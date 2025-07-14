@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleError, handleSuccess } from "../utils";
-import otTableImage from "../assets/bez-ta.png"; // Update with your OT image path
+import otTableImage from "../assets/Picture1.png"; // Update with your OT image path
 
 const Login = ({ setIsAuthenticated }) => {
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
@@ -20,14 +20,11 @@ const Login = ({ setIsAuthenticated }) => {
       return handleError("Email and password are required");
 
     try {
-      const response = await fetch(
-        "https://dum-digital-user-manual.vercel.app/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(loginInfo),
-        }
-      );
+      const response = await fetch("http://localhost:8080/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginInfo),
+      });
 
       const result = await response.json();
       const { success, message, jwtToken, name, role, error } = result;
