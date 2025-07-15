@@ -23,8 +23,8 @@ const ViewManual = () => {
   if (error) return <p className="p-4 text-red-600">{error}</p>;
   if (!manual) return <p className="p-4">Loading manual...</p>;
 
-  const fullUrl = `http://localhost:8080${manual.file}`;
-  const imageUrl = `http://localhost:8080${manual.image}`;
+  const fullUrl = `https://dum-usermanual.onrender.com${manual.file}`;
+  const imageUrl = `https://dum-usermanual.onrender.com${manual.image}`;
 
   return (
     <div className="bg-white min-h-screen">
