@@ -26,7 +26,7 @@ function App() {
       <Routes>
         {/* Public Auth Routes */}
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route path="/br/component/signup" element={<Signup />} />
 
         {/* Protected Routes inside Layout */}
         <Route
