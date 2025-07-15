@@ -31,7 +31,7 @@ const DashboardPage = () => {
             to={`/manual/view/${manual._id}`}
             className="bg-white p-6 rounded-lg shadow hover:shadow-md transition block hover:bg-gray-50">
             <img
-              src={`http://localhost:8080${manual.image}`}
+              src={`https://dum-usermanual.onrender.com${manual.image}`}
               alt={manual.title}
               className="h-40 mx-auto mb-4 object-contain"
             />
