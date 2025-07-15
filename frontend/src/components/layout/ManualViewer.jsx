@@ -2,7 +2,7 @@ import { Worker, Viewer } from "@react-pdf-viewer/core";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 
 const ManualViewer = ({ filePath, manualId, preview = true }) => {
-  const fullUrl = `http://localhost:8080${filePath}`;
+  const fullUrl = `https://dum-usermanual.onrender.com${filePath}`;
 
   return (
     <div className="relative bg-white">
