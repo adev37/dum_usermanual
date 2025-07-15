@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import UserModel from "../Models/User.js";
 
+// SIGNUP CONTROLLER
 export const signup = async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
@@ -13,8 +14,8 @@ export const signup = async (req, res) => {
       });
     }
 
-    const user = await UserModel.findOne({ email });
-    if (user) {
+    const existingUser = await UserModel.findOne({ email: email.trim() });
+    if (existingUser) {
       return res.status(409).json({
         message: "User already exists, please log in.",
         success: false,
@@ -22,24 +23,29 @@ export const signup = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = new UserModel({
-      name,
-      email,
+      name: name.trim(),
+      email: email.trim(),
       password: hashedPassword,
       role,
     });
 
     await newUser.save();
+
     res.status(201).json({ message: "Signup successful", success: true });
   } catch (error) {
-    console.error("Signup error:", error);
+    console.error("Signup error:", error.message);
     res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
+// ✅ FIXED LOGIN CONTROLLER
 export const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = req.body.email?.trim();
+    const password = req.body.password;
+
     const user = await UserModel.findOne({ email });
 
     if (!user) {
@@ -53,6 +59,14 @@ export const login = async (req, res) => {
     if (!isPassEqual) {
       return res.status(403).json({
         message: "Auth failed, email or password is incorrect",
+        success: false,
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      console.error("❌ JWT_SECRET is not defined in .env");
+      return res.status(500).json({
+        message: "Server error: JWT secret not configured",
         success: false,
       });
     }
@@ -72,11 +86,12 @@ export const login = async (req, res) => {
       name: user.name,
     });
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("Login error:", error.message);
     res.status(500).json({ message: "Internal server error", success: false });
   }
 };
 
+// UPDATE USER
 export const updateUser = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -90,6 +105,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
+// USER DETAIL
 export const userDetail = async (req, res) => {
   try {
     const user = await UserModel.findById(req.user._id).select("-password");

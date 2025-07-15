@@ -9,7 +9,7 @@ import { dirname, join } from "path";
 // Local imports
 import connectDB from "./config/db.js";
 import ManualRoutes from "./Routes/manualRoutes.js";
-import AuthRouter from "./Routes/AuthRouter.js"; // Optional, if you're using auth
+import AuthRouter from "./Routes/authRouters.js"; // Optional, if you're using auth
 
 // Load env vars
 dotenv.config();

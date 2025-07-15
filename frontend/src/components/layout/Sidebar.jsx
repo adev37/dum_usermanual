@@ -9,6 +9,7 @@ const Sidebar = () => {
   const [openSidebar, setOpenSidebar] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const role = localStorage.getItem("role");
 
   useEffect(() => {
     axios.get("/manuals").then((res) => setManuals(res.data));
@@ -91,14 +92,17 @@ const Sidebar = () => {
           </nav>
 
           {/* Bottom Links */}
+          {/* Bottom Links */}
           <div className="mt-6 border-t border-gray-200 pt-4 space-y-3 text-sm">
-            <Link
-              to="/upload"
-              onClick={() => setOpenSidebar(false)}
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline transition">
-              <Upload className="w-4 h-4" />
-              Upload New Manual
-            </Link>
+            {role === "admin" && (
+              <Link
+                to="/upload"
+                onClick={() => setOpenSidebar(false)}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:underline transition">
+                <Upload className="w-4 h-4" />
+                Upload New Manual
+              </Link>
+            )}
 
             <button
               onClick={handleLogout}

@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { handleError, handleSuccess } from "../utils";
-import otTableImage from "../assets/Picture1.png"; // Update with your OT image path
+import otTableImage from "../assets/Picture1.png";
 
-const Login = ({ setIsAuthenticated }) => {
+const Login = () => {
   const [loginInfo, setLoginInfo] = useState({ email: "", password: "" });
   const navigate = useNavigate();
 
@@ -14,35 +14,39 @@ const Login = ({ setIsAuthenticated }) => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const { email, password } = loginInfo;
 
-    if (!email || !password)
+    const email = loginInfo.email.trim();
+    const password = loginInfo.password;
+
+    if (!email || !password) {
       return handleError("Email and password are required");
+    }
 
     try {
       const response = await fetch("http://localhost:8080/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(loginInfo),
+        body: JSON.stringify({ email, password }),
       });
 
       const result = await response.json();
-      const { success, message, jwtToken, name, role, error } = result;
 
-      if (success) {
-        handleSuccess(message);
-        localStorage.setItem("token", jwtToken);
-        localStorage.setItem("loggedInUser", name);
-        localStorage.setItem("role", role);
-        setIsAuthenticated(true);
-        setTimeout(() => navigate("/"), 1000);
-      } else {
-        handleError(
-          error?.details?.[0]?.message || message || "An error occurred"
-        );
+      if (!response.ok) {
+        handleError(result.message || "Login failed");
+        setLoginInfo({ ...loginInfo, password: "" });
+        return;
       }
+
+      const { jwtToken, name, role } = result;
+
+      handleSuccess(result.message);
+      localStorage.setItem("token", jwtToken);
+      localStorage.setItem("loggedInUser", name);
+      localStorage.setItem("role", role);
+
+      setTimeout(() => navigate("/"), 1000);
     } catch (error) {
-      handleError(error.message || "Error during login");
+      handleError(error.message || "Server error during login");
     }
   };
 
@@ -65,43 +69,40 @@ const Login = ({ setIsAuthenticated }) => {
           </h2>
 
           <form onSubmit={handleLogin}>
-            {/* Email Field */}
             <div className="mb-4">
               <label
                 htmlFor="email"
-                className="block text-sm text-gray-700 mb-1">
+                className="block text-sm mb-1 text-gray-700">
                 Email address
               </label>
               <input
                 type="email"
                 name="email"
                 id="email"
-                placeholder="you@example.com"
                 value={loginInfo.email}
                 onChange={handleChange}
+                placeholder="you@example.com"
                 className="w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
-            {/* Password Field */}
             <div className="mb-4">
               <label
                 htmlFor="password"
-                className="block text-sm text-gray-700 mb-1">
+                className="block text-sm mb-1 text-gray-700">
                 Password
               </label>
               <input
                 type="password"
                 name="password"
                 id="password"
-                placeholder="Enter password"
                 value={loginInfo.password}
                 onChange={handleChange}
+                placeholder="Enter password"
                 className="w-full px-4 py-2 border border-gray-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
 
-            {/* Submit */}
             <button
               type="submit"
               className="w-full py-2 mt-2 text-white bg-[#1f4db6] hover:bg-[#153e99] rounded-full font-semibold transition-all shadow-md">

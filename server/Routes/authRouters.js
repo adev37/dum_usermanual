@@ -6,14 +6,14 @@ import {
   login,
   updateUser,
   userDetail,
-} from "../Controllers/AuthController.js";
+} from "../Controllers/authControllers.js";
 
 // Middlewares
 import verifyToken from "../Middlewares/verifyToken.js";
 import {
   signupValidation,
   loginValidation,
-} from "../Middlewares/AuthValidation.js";
+} from "../Middlewares/authValidations.js";
 
 // Routes
 router.post("/signup", signupValidation, signup);
