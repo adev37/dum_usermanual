@@ -1,7 +1,11 @@
+// src/services/api.js
 import axios from "axios";
 
 const instance = axios.create({
-  baseURL: "http://localhost:8080/api", // ✅ matches /api/manuals/upload
+  baseURL: "https://dum-usermanual.onrender.com/api", // 👈 correct for Render deployment
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
 export default instance;
